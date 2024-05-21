@@ -1,0 +1,39 @@
+version: '3.8' #version of compose, this will effect configurations
+services: # we can create multiple service in one docker-compose
+  # This api service, will be serve as our backend
+  backend: # the name of backend service
+    container_name: starter-kit-backend # we can specify name of our service
+    build: #this will build the dockerfile
+      dockerfile: Dockerfile #the name of dockerfile, the name can be changed
+      context: . # The path for the above dockerfile
+    ports: # define ports, if we want to listen in different port we can change from here
+      - '5000:5000'
+    volumes: # To mount volumns in our composer
+      - /usr/src/app # vloume for our whole app copy from . to /usr/src/app
+      - /usr/src/app/node_modules #special volume for node_modules
+    # env_file: #or we can pass env like this
+    #   - .env #this is a file
+    environment:
+      - 'DB_HOST=postgres'
+      - 'DB_USERNAME=postgres'
+      - 'DB_PASSWORD=postgres'
+      - 'DB_DATABASE=postgres'
+      - 'DB_PORT=5432'
+    depends_on:
+      - postgres
+
+  postgres: # second service that is database
+    image: postgres:14 # postgresimage
+    restart: always # restart this container everytime
+    container_name: starter-kit-db
+    volumes:
+      - data:/var/lib/postgresql/data # mouitng volume at data, include at the very below under volume tag
+    environment:
+      - 'POSTGRES_DB=postgres'
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=postgres'
+    ports:
+      - '5432:5432'
+
+volumes:
+  data:
